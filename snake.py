@@ -12,10 +12,11 @@ class Point:
     Создание символа с координатами x и y на canvas
     """
 
-    def __init__(self, x, y, sym):
+    def __init__(self, x, y, sym='*', direction='LEFT'):
         self.x = x
         self.y = y
         self.sym = sym
+        self.direction = direction
 
     def draw(self, obj):
         """
@@ -24,6 +25,18 @@ class Point:
         :return: объект символа с заданными координатами на canvas
         """
         obj.create_text(self.x, self.y, text=self.sym, font='Arial 18')
+
+    def Move(self, offset):
+        if self.direction == 'LEFT':
+            self.x += offset
+        elif self.direction == 'RIGHT':
+            self.x -= offset
+        elif self.direction == 'UP':
+            self.y -= offset
+        elif self.direction == 'DOWN':
+            self.y += offset
+        else:
+            print('Неправильное значение переменной direction')
 
 class HorizontalLine(Figure):
     """
@@ -60,6 +73,34 @@ class VerticalLine (Figure):
         """
         list(map((lambda x: obj.create_text(self.level, x, text=self.sym, font='Arial 16')), self.plist))
 
+class Snake:
+    def __init__(self, tail, len, direction):
+        # super().__init__(self, start, end, level, sym)
+
+        self.tail = tail  # координата хвоста змейки (объект типа Point)
+        self.len = len  # длина змейки
+        self.direction = direction  # напраление
+        self.sym = '#'
+
+    def point_snake(self):
+        plist = []
+        i = 0
+        while i < self.len:
+            p = Point(self.tail.x, self.tail.y, direction=self.direction)
+            p.Move(i)
+            p.draw(canv)
+            plist.append(p)
+            i += 1
+        self.plist = plist
+
+
+
+
+
+
+
+
+
 
 
 root = tkinter.Tk()
@@ -67,27 +108,12 @@ root.geometry('300x280+300+300')
 
 canv=tkinter.Canvas(root, width=300, height=280, cursor=None)
 
-p1 = Point(100, 45, '*')
-p2 = Point(100, 100, '%')
-
-plist = []
-plist.append(p1)
-plist.append(p2)
-
-for i in plist:
-    i.draw(canv)
-
-HorizontalLine = HorizontalLine(20, 70, 150, '*')
-HorizontalLine.draw(canv)
-#
-VerticalLine = VerticalLine(0, 50, 20, '*')
-VerticalLine.draw(canv)
+p1 = Point(100, 45, '*', 'RIGHT')
 
 
-# figure = Figure(20, 70, 100, 50, 80, 10)
-# print(list(figure.plist_x))
-# print(list(figure.draw))
-# figure.draw(canv)
+snake = Snake(p1, 30, 'DOWN')
+poi = snake.point_snake()
+print(poi)
 
 
 canv.pack()  # отображение объекта на экране
