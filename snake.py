@@ -26,18 +26,20 @@ root.geometry('300x280+300+300')
 canv=tkinter.Canvas(root, width=300, height=280, cursor=None)
 
 p1 = Point(100, 45, '*')
-# p1.x = 100
-# p1.y = 45
-# p1.sym = '%'
-p1.draw(obj=canv)
-# draw(canv, p1.x, p1.y, p1.sym)
+# p1.draw(obj=canv)
 
-p2 = Point(100, 45, '%')
-p2.x = 100
-p2.y = 100
-p2.sym = '*'
-p2.draw(canv)
-# # draw(canv, p2.x, p2.y, p2.sym)
+p2 = Point(100, 100, '%')
+# p2.x = 100
+# p2.y = 100
+# p2.sym = '*'
+# p2.draw(canv)
+
+plist = []
+plist.append(p1)
+plist.append(p2)
+
+for i in plist:
+    i.draw(canv)
 
 canv.pack()  # отображение объекта на экране
 root.mainloop()
