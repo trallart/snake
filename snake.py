@@ -1,32 +1,47 @@
 import tkinter
 
-# Функция вывода символа на экран
-def draw(obj, x, y, sym):
+
+class Point:
     """
-    :param obj: имя объекта tkinter
-    :param x: координатота по оси x
-    :param y: координата по оси y
-    :param sym: тип символа, отоброжающегося в окне
-    :return: объект символа с заданными координатами на canvas
+    Создание символа с координатами x и y на canvas
     """
-    return obj.create_text(x, y, text=sym, font='Arial 18')
+
+    def __init__(self, x, y, sym):
+        self.x = x
+        self.y = y
+        self.sym = sym
+
+    def draw(self, obj):
+        """
+        Функция прорисовки символа на canvas
+        :param obj: объект типа canvas
+        :return: объект символа с заданными координатами на canvas
+        """
+        return obj.create_text(self.x, self.y, text=self.sym, font='Arial 18')
 
 
 root = tkinter.Tk()
 root.geometry('300x280+300+300')
 
-x1 = 25
-y1 = 50
-sym_1 = '*'
-
-x2 = 50
-y2 = 100
-sym_2= '#'
-
 canv=tkinter.Canvas(root, width=300, height=280, cursor=None)
-draw(canv, x1, y1, sym_1)
-draw(canv, x2, y2, sym_2)
-# canv.create_text(x1, y1, text=sym_1, font='Arial 18')
-# canv.create_text(x2, y2, text=sym_2, font='Arial 18')
+
+p1 = Point(100, 45, '*')
+# p1.x = 100
+# p1.y = 45
+# p1.sym = '%'
+p1.draw(obj=canv)
+# draw(canv, p1.x, p1.y, p1.sym)
+
+p2 = Point(100, 45, '%')
+p2.x = 100
+p2.y = 100
+p2.sym = '*'
+p2.draw(canv)
+# # draw(canv, p2.x, p2.y, p2.sym)
+
 canv.pack()  # отображение объекта на экране
 root.mainloop()
+
+
+
+
