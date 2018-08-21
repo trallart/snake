@@ -1,5 +1,11 @@
 import tkinter
 
+class Figure:
+    def __init__(self, start, end, level, sym='*'):
+        self.plist = (x for x in list(range(300)) if start <= x <= end)
+        self.level = level
+        self.sym = sym
+
 
 class Point:
     """
@@ -19,15 +25,16 @@ class Point:
         """
         obj.create_text(self.x, self.y, text=self.sym, font='Arial 18')
 
-class HorizontalLine:
+class HorizontalLine(Figure):
     """
     Класс горизонтальной линии
     """
-    def __init__(self, x_left, x_right, y, sym='*'):
+    def __init__(self, start, end, level, sym='*'):
+        Figure.__init__(self, start, end, level, sym='*')
 
-        self.plist_x = (x for x in list(range(300)) if x_left <= x <= x_right)
-        self.y = y
-        self.sym = sym
+        # self.plist_x = (x for x in list(range(300)) if x_left <= x <= x_right)
+        # self.y = y_lev
+        # self.sym = sym
 
 
     def draw(self, obj):
@@ -36,18 +43,13 @@ class HorizontalLine:
         :param obj: объект типа canvas
         :return: объект символа с заданными координатами на canvas
         """
-        list(map((lambda x: obj.create_text(x, self.y, text=self.sym, font='Arial 16')), self.plist_x))
+        list(map((lambda x: obj.create_text(x, self.level, text=self.sym, font='Arial 16')), self.plist))
 
 
-class VerticalLine:
+class VerticalLine (Figure):
     """
     Класс вертикальной линии
     """
-    def __init__(self, y_top, y_buttom, x, sym='*'):
-
-        self.plist_y = (y for y in list(range(280)) if y_top <= y <= y_buttom)
-        self.x = x
-        self.sym = sym
 
 
     def draw(self, obj):
@@ -56,7 +58,7 @@ class VerticalLine:
         :param obj: объект типа canvas
         :return: объект символа с заданными координатами на canvas
         """
-        list(map((lambda y: obj.create_text(self.x, y, text=self.sym, font='Arial 16')), self.plist_y))
+        list(map((lambda x: obj.create_text(self.level, x, text=self.sym, font='Arial 16')), self.plist))
 
 
 
@@ -77,9 +79,16 @@ for i in plist:
 
 HorizontalLine = HorizontalLine(20, 70, 150, '*')
 HorizontalLine.draw(canv)
-
+#
 VerticalLine = VerticalLine(0, 50, 20, '*')
 VerticalLine.draw(canv)
+
+
+# figure = Figure(20, 70, 100, 50, 80, 10)
+# print(list(figure.plist_x))
+# print(list(figure.draw))
+# figure.draw(canv)
+
 
 canv.pack()  # отображение объекта на экране
 root.mainloop()
