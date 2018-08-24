@@ -1,5 +1,6 @@
 import tkinter
 import time
+import random
 
 class Figure:
     def __init__(self, start, end, level, sym='*'):
@@ -19,10 +20,11 @@ class Point:
         self.sym = sym
         self.direction = direction
         self.canv = obj
+        self.tag = 'figure'
 
 
     def draw(self):
-        self.point = self.canv.create_text(self.x, self.y, text=self.sym, font='Arial 18', tag='n1')
+        self.point = self.canv.create_text(self.x, self.y, text=self.sym, font='Arial 14', tag=self.tag)
         self.canv.move(self.point, self.x, self.y)
 
     def given(self):
@@ -50,8 +52,12 @@ class Point:
             y = 0
 
         self.canv.move(self.point, x, y)
-        self.x = self.x + x
-        self.y = self.y + y
+        self.x = self.x + x/2
+        self.y = self.y + y/2
+        # print(self.y)
+        # print(self.canv.coord('n1'))
+        # if self.y ==0:
+        #     raise ValueError
 
         # print(self.x, 'njxrb', self.y)
         # self.canv.after(20, self.given)
@@ -112,8 +118,13 @@ class Snake:
         self.motion = True  # обработка нажатимя кнопок
         self.sym = '*'  # символ змейки
         self.canv = obj  # Объект на котором змейка рисутеся (Canvas)
-        self.plist = self.point_snake()  # список точек змейки
 
+        # self.apple = Point(30, 30, self.canv, '*')  # яблоко
+        self.apple = Point(random.randint(0, 100), random.randint(0, 100), canv,  '*')  # яблоко
+        self.apple.tag ='apple'
+        # self.apple = Point(-80, -80, self.canv,  '*')  # яблоко
+
+        self.plist = self.point_snake()  # список точек змейки
 
 
     def point_snake(self):
@@ -121,32 +132,37 @@ class Snake:
         i = 0
         while i < self.len:
             if i == 0:
-                p = Point(self.tail.x, self.tail.y, canv, '+', direction=self.direction)
+                p = Point(self.tail.x, self.tail.y, self.tail.canv, '+', direction=self.direction)
             else:
-                p = Point(self.tail.x, self.tail.y, canv, self.sym, direction=self.direction)
+                p = Point(self.tail.x, self.tail.y, self.tail.canv, self.sym, direction=self.direction)
             p.Move(i*5)
             p.draw()
             plist.append(p)
             i += 1
+            # print(p.x,p.y)
         # plist = plist.reverse()
+        # print('Z dspsdf.cm', len(plist))
         return plist
 
 
     def Move(self):
+        # Рисуем яблоко
+        self.apple.draw()
+        # цикл тела движения змейки
         for i, point in enumerate(self.plist):
-            # Если это не голова и направление предыдущего символа не совпадает с направление текущего символа
-            if i != 0:  # and self.plist[i].direction != self.plist[i-1].direction:
+            # Если это не голова
+            if i != 0:
                 # Движение текущей вниз:
                 if point.direction == 'DOWN':
                     # print('Движение в низ')
-                    if ['LEFT', 'RIGHT'].count(self.plist[i-1].direction) and self.plist[i].y == self.plist[i-1].y-5:
+                    if ['LEFT', 'RIGHT'].count(self.plist[i-1].direction) and self.plist[i].y == self.plist[i-1].y:
                         point.direction = self.plist[i-1].direction
                         # Если второй элемент еще не повернул, то обработка кнопок не выполняется
                         if i == 1:
                             self.motion = True
                 # Движение текущей вверх
                 elif point.direction == 'UP':
-                    if ['LEFT', 'RIGHT'].count(self.plist[i-1].direction) and self.plist[i].y == self.plist[i-1].y-5:
+                    if ['LEFT', 'RIGHT'].count(self.plist[i-1].direction) and self.plist[i].y == self.plist[i-1].y:
                         point.direction = self.plist[i-1].direction
                         if i == 1:
                             self.motion = True
@@ -163,10 +179,34 @@ class Snake:
                         point.direction = self.plist[i - 1].direction
                         if i ==1:
                             self.motion = True
-                            print('right')
             point.given()
-            # print(self.motion)
-        self.canv.after(50, self.Move)
+
+            # Проверка съела ли змейка еду
+            # print('Координаты яблока:',self.apple.x, self.apple.y )
+            # print('Координаты головы змеи:',self.plist[0].x, self.plist[0].y )
+
+            if -5 < self.plist[0].x - self.apple.x < 5 and -5 < self.plist[0].y - self.apple.y < 5:
+                self.len += 1  # увеличение длины змейки
+                self.canv.delete(self.apple.tag)
+                # Создание нового яблока и проверка, что он не попал на хвост змеи
+                while True:
+                    var = True
+                    self.apple = Point(random.randint(0, 80), random.randint(0, 80), canv, '*') # создание яблока
+                    for index in self.plist:
+                        if [self.apple.x, self.apple.y] == [index.x, index.y]:
+                            var = False
+                            self.canv.delete(self.apple.tag)
+                            break
+                    if var is True:
+                        break
+                self.apple.tag = 'apple'
+                p = Point(self.plist[-1].x, self.plist[-1].y, self.canv, '*', direction=self.plist[-1].direction)
+                p.Move(5)
+                p.draw()
+                self.plist.append(p)
+
+
+        self.canv.after(20, self.Move)
 
     def change_direction(self, event):
         if self.motion == True:
@@ -187,29 +227,26 @@ class Snake:
 
 
 
-
-
-
 root = tkinter.Tk()
 root.geometry('300x280+300+300')
 
 canv=tkinter.Canvas(root, width=300, height=300, cursor=None)
-HorizontalLine1 = HorizontalLine(0, 300, 10, '-')
-HorizontalLine1.draw(canv)
-HorizontalLine2 = HorizontalLine(0, 300, 279, '-')
-HorizontalLine2.draw(canv)
-VerticalLine1 = VerticalLine(0, 280, 5, '-')
-VerticalLine1.draw(canv)
-VerticalLine2 = VerticalLine(0, 280, 295, '-')
-VerticalLine2.draw(canv)
+# HorizontalLine1 = HorizontalLine(0, 300, 10, '-')
+# HorizontalLine1.draw(canv)
+# HorizontalLine2 = HorizontalLine(0, 300, 279, '-')
+# HorizontalLine2.draw(canv)
+# VerticalLine1 = VerticalLine(0, 280, 5, '-')
+# VerticalLine1.draw(canv)
+# VerticalLine2 = VerticalLine(0, 280, 295, '-')
+# VerticalLine2.draw(canv)
 
 
-p1 = Point(100, 100, canv, '*', 'RIGHT')
+p1 = Point(100, 100, canv, '*', 'UP')
 # p1.draw()
 # p1.given()
 
 
-snake = Snake(p1, 15, 'UP', canv)
+snake = Snake(p1, 10, 'UP', canv)
 # snake.point_snake()
 
 root.bind('<Up>', snake.change_direction)
