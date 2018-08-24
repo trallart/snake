@@ -4,7 +4,7 @@ import random
 
 class Figure:
     def __init__(self, start, end, level, sym='*'):
-        self.plist = (x for x in list(range(300)) if start <= x <= end)
+        self.plist = (x for x in list(range(0, 300, 5)) if start <= x <= end)
         self.level = level
         self.sym = sym
 
@@ -54,13 +54,7 @@ class Point:
         self.canv.move(self.point, x, y)
         self.x = self.x + x/2
         self.y = self.y + y/2
-        # print(self.y)
-        # print(self.canv.coord('n1'))
-        # if self.y ==0:
-        #     raise ValueError
-
-        # print(self.x, 'njxrb', self.y)
-        # self.canv.after(20, self.given)
+         # self.canv.after(20, self.given)
 
     def Move(self, offset):
         if self.direction == 'LEFT':
@@ -82,7 +76,7 @@ class HorizontalLine(Figure):
     Класс горизонтальной линии
     """
     def __init__(self, start, end, level, sym='*'):
-        Figure.__init__(self, start, end, level, sym='*')
+        Figure.__init__(self, start, end, level, sym)
 
 
     def draw(self, obj):
@@ -122,12 +116,22 @@ class Snake:
         # self.apple = Point(30, 30, self.canv, '*')  # яблоко
         self.apple = Point(random.randint(0, 100), random.randint(0, 100), canv,  '*')  # яблоко
         self.apple.tag ='apple'
-        # self.apple = Point(-80, -80, self.canv,  '*')  # яблоко
 
-        self.plist = self.point_snake()  # список точек змейки
+        # Построение стен
+        self.walls_left = VerticalLine(20, 260, 10, '|')
+        self.walls_right = VerticalLine(20, 260, 290, '|')
+        self.walls_up = HorizontalLine(11, 285, 10, '-')
+        self.walls_down = HorizontalLine(11, 285, 270, '-')
+
+        walls = [ self.walls_left, self.walls_right, self.walls_up, self.walls_down,]
+        list(map(lambda x: x.draw(self.canv), walls))  # прорисовка линий стенки
+
+
+        self.plist = self.point_snake()  # построение змейки
 
 
     def point_snake(self):
+
         plist = []
         i = 0
         while i < self.len:
@@ -152,7 +156,7 @@ class Snake:
         for i, point in enumerate(self.plist):
             # Если это не голова
             if i != 0:
-                # Движение текущей вниз:
+                # Движение текущей точки вниз:
                 if point.direction == 'DOWN':
                     # print('Движение в низ')
                     if ['LEFT', 'RIGHT'].count(self.plist[i-1].direction) and self.plist[i].y == self.plist[i-1].y:
@@ -160,31 +164,34 @@ class Snake:
                         # Если второй элемент еще не повернул, то обработка кнопок не выполняется
                         if i == 1:
                             self.motion = True
-                # Движение текущей вверх
+                # Движение текущей точки вверх
                 elif point.direction == 'UP':
                     if ['LEFT', 'RIGHT'].count(self.plist[i-1].direction) and self.plist[i].y == self.plist[i-1].y:
                         point.direction = self.plist[i-1].direction
                         if i == 1:
                             self.motion = True
-                # Движение текущей вверх
+                # Движение текущей точки влево
                 elif point.direction == 'LEFT':
                     # print('ДИВЕЖЕНИЕ В ЛЕВО')
                     if ['UP', 'DOWN'].count(self.plist[i - 1].direction) and self.plist[i].x == self.plist[i-1].x:
                         point.direction = self.plist[i - 1].direction
                         if i==1:
                             self.motion = True
-                # Движение текущей вверх
+                # Движение текущей точки вправо
                 elif point.direction == 'RIGHT':
                     if ['UP', 'DOWN'].count(self.plist[i - 1].direction) and self.plist[i].x == self.plist[i-1].x:
                         point.direction = self.plist[i - 1].direction
                         if i ==1:
                             self.motion = True
+
+                # Проверка на столкновение с собственным хвостом
+                if -2< self.plist[0].x - point.x <2 and -2 < self.plist[0].y - point.y < 2:
+                    self.canv.delete('all')
+                    self.canv.create_text(150, 100, text='GAME OVER', font='Arial 16')
+
             point.given()
 
             # Проверка съела ли змейка еду
-            # print('Координаты яблока:',self.apple.x, self.apple.y )
-            # print('Координаты головы змеи:',self.plist[0].x, self.plist[0].y )
-
             if -5 < self.plist[0].x - self.apple.x < 5 and -5 < self.plist[0].y - self.apple.y < 5:
                 self.len += 1  # увеличение длины змейки
                 self.canv.delete(self.apple.tag)
@@ -204,6 +211,14 @@ class Snake:
                 p.Move(5)
                 p.draw()
                 self.plist.append(p)
+
+            # Проверка столкновения змейки со стенкой
+            if (self.plist[0].x < self.walls_left.level or self.plist[0].x >= self.walls_right.level/2) or  \
+                    (self.plist[0].y < self.walls_up.level or self.plist[0].y >= self.walls_down.level / 2):
+               self.canv.delete('all')
+               self.canv.create_text(150, 100, text='GAME OVER', font='Arial 16')
+
+            # Проверка столкновения змейки столкнулась с собственным хвостом
 
 
         self.canv.after(20, self.Move)
@@ -228,17 +243,9 @@ class Snake:
 
 
 root = tkinter.Tk()
-root.geometry('300x280+300+300')
+root.geometry('310x290+300+300')
 
 canv=tkinter.Canvas(root, width=300, height=300, cursor=None)
-# HorizontalLine1 = HorizontalLine(0, 300, 10, '-')
-# HorizontalLine1.draw(canv)
-# HorizontalLine2 = HorizontalLine(0, 300, 279, '-')
-# HorizontalLine2.draw(canv)
-# VerticalLine1 = VerticalLine(0, 280, 5, '-')
-# VerticalLine1.draw(canv)
-# VerticalLine2 = VerticalLine(0, 280, 295, '-')
-# VerticalLine2.draw(canv)
 
 
 p1 = Point(100, 100, canv, '*', 'UP')
@@ -246,7 +253,7 @@ p1 = Point(100, 100, canv, '*', 'UP')
 # p1.given()
 
 
-snake = Snake(p1, 10, 'UP', canv)
+snake = Snake(p1, 3, 'UP', canv)
 # snake.point_snake()
 
 root.bind('<Up>', snake.change_direction)
