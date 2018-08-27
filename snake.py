@@ -1,5 +1,4 @@
 import tkinter
-import time
 import random
 
 class Figure:
@@ -307,8 +306,6 @@ exit_button.pack(side='right', padx=0, pady =0)
 
 snake = start_button.bind('<Button-1>', start)
 exit_button.bind('<Button-1>', exit)
-
-
 
 root.mainloop()
 
